@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
 
 function CheckBox({ item: { id, checked, value }, setData }) {
   const formStyle = {
@@ -65,40 +66,42 @@ function CheckListForm({ setData }) {
   );
 }
 
+const CheckListProgressOuter = styled.div`
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+  border: 1px solid gray;
+  display: flex;
+`;
+
+const CheckListProgressInner = styled.div`
+  background: green;
+  height: 100%;
+  transition: width 0.5s;
+  width: ${({ $progress }) => $progress}%;
+  display: flex;
+`;
+
+const CheckListProgressText = styled.span`
+  color: white;
+  font-weight: bold;
+  margin: auto;
+`;
+
+
 function CheckListProgress({ data }) {
   const checkedCount = data.filter((item) => item.checked).length;
   const progress = Math.round((checkedCount / data.length) * 100);
 
-  const style = {
-    boxSizing: 'border-box',
-    width: '100%',
-    height: '30px',
-    border: '1px solid gray',
-    display: 'flex',
-  };
-
-  const progressStyle = {
-    background: 'green',
-    height: '100%',
-    transition: 'width 0.5s',
-    width: `${progress}%`,
-    display: 'flex',
-  };
-
-  const textStyle = {
-    color: 'white',
-    fontWeight: 'bold',
-    margin: 'auto',
-  };
-
   return (
-    <div style={style}>
-      <div style={progressStyle}>
-        <span style={textStyle}>{progress}%</span>
-      </div>
-    </div>
+    <CheckListProgressOuter>
+      <CheckListProgressInner $progress={progress}>
+        <CheckListProgressText>{progress}%</CheckListProgressText>
+      </CheckListProgressInner>
+    </CheckListProgressOuter>
   );
 }
+
 
 function App() {
   const [data, setData] = useState([
