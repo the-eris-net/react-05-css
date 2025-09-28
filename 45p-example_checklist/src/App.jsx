@@ -1,142 +1,134 @@
 import { useState, useEffect } from 'react';
 
-function ChartBar({
-  item: { id, name, score },
-  maxScore,
-  color,
-  setData,
-  animationDelayMs = 500,
-}) {
-  const [init, setInit] = useState(false);
-  useEffect(() => {
-    setInit(true);
-  }, []);
-
-  const style = {
+function CheckBox({ item: { id, checked, value }, setData }) {
+  const formStyle = {
     display: 'flex',
-    flexDirection: 'column',
-    border: '1px solid gray',
-    backgroundColor: color,
-    height: init ? `${(score / maxScore) * 100}%` : 0,
-    width: init ? 50 : 0,
-    marginRight: 10,
-    marginTop: 'auto',
-    // 밑바닥에 붙는다
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    transition: `height ${animationDelayMs}ms, width ${animationDelayMs}ms`,
+    gap: '10px',
   };
 
-  const charBarStyle = {
-    color: 'black',
-    fontWeight: 'bold',
+  const handleChange = () => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked } : item
+      )
+    );
   };
 
   const handleClick = () => {
-    setInit(false);
-    setTimeout(() => {
-      setData((prevData) => prevData.filter((item) => item.id !== id));
-    }, animationDelayMs);
+    setData((prevData) => prevData.filter((item) => item.id !== id));
   };
 
   return (
-    <div style={style} onClick={handleClick}>
-      <span style={charBarStyle}>{name}</span>
-      <span style={charBarStyle}>{score}</span>
-    </div>
+    <form style={formStyle}>
+      <label htmlFor={id}>
+        <input
+          type="checkbox"
+          id={id}
+          checked={checked}
+          onChange={handleChange}
+        />
+        {value}
+      </label>
+      <button
+        onClick={handleClick}
+        type="button"
+        style={{ marginLeft: 'auto' }}
+      >
+        삭제
+      </button>
+    </form>
   );
 }
 
-function ChartForm({ setData }) {
-  const [inputSubject, setInputSubject] = useState('');
-  const [inputScore, setInputScore] = useState('');
+function CheckListForm({ setData }) {
+  const [newItem, setNewItem] = useState('');
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!newItem) return;
     setData((prevData) => [
       ...prevData,
-      { id: prevData.length, name: inputSubject, score: Number(inputScore) },
+      { id: prevData.length, checked: false, value: newItem },
     ]);
-    setInputSubject('');
-    setInputScore('');
+    setNewItem('');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="subject">
-        과목 명 :{' '}
-        <input
-          type="text"
-          id="subject"
-          value={inputSubject}
-          onChange={(e) => setInputSubject(e.target.value)}
-        />
-      </label>
-      <br />
-      <label htmlFor="score">
-        점수 :{' '}
-        <input
-          type="text"
-          id="score"
-          value={inputScore}
-          onChange={(e) => setInputScore(e.target.value)}
-        />
-      </label>
-      <br />
+    <form onSubmit={handleSubmit} style={{ marginBottom: '10px' }}>
+      <input
+        type="text"
+        value={newItem}
+        onChange={(e) => setNewItem(e.target.value)}
+      />
       <button type="submit">추가</button>
     </form>
   );
 }
 
-function Chart({ data, colorRainbow, setData }) {
-  const chartStyle = {
+function CheckListProgress({ data }) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const checkedCount = data.filter((item) => item.checked).length;
+    setProgress(Math.round((checkedCount / data.length) * 100));
+  }, [data]);
+
+  const style = {
     boxSizing: 'border-box',
-    height: 300,
     width: '100%',
-    border: '1px solid black',
-    padding: 10,
-    marginTop: 10,
+    height: '30px',
+    border: '1px solid gray',
     display: 'flex',
-    /* 이거 추가하면 가운데 적용 */
-    justifyContent: 'center',
+  };
+
+  const progressStyle = {
+    background: 'green',
+    height: '100%',
+    transition: 'width 0.5s',
+    width: `${progress}%`,
+    display: 'flex',
+  };
+
+  const textStyle = {
+    color: 'white',
+    fontWeight: 'bold',
+    margin: 'auto',
   };
 
   return (
-    <div style={chartStyle}>
-      {data.map((item) => (
-        <ChartBar
-          key={item.id}
-          item={item}
-          setData={setData}
-          color={colorRainbow[item.id % colorRainbow.length]}
-          maxScore={Math.max(...data.map((item) => item.score))}
-        />
-      ))}
+    <div style={style}>
+      <div style={progressStyle}>
+      <span style={textStyle}>{progress}%</span>
+      </div>
     </div>
   );
 }
 
 function App() {
   const [data, setData] = useState([
-    { id: 0, name: '국어', score: 90 },
-    { id: 1, name: '수학', score: 85 },
-    { id: 2, name: '영어', score: 88 },
+    { id: 0, checked: false, value: '스터디 준비' },
+    { id: 1, checked: false, value: '예제 코드 작성' },
+    { id: 2, checked: false, value: '복습' },
   ]);
 
-  const colorRainbow = [
-    'red',
-    'orange',
-    'yellow',
-    'green',
-    'blue',
-    'indigo',
-    'violet',
-  ];
+  const checkListStyle = {
+    boxSizing: 'border-box',
+    width: '100%',
+    border: '1px solid black',
+    padding: 10,
+    marginBottom: 10,
+  };
 
   return (
     <div>
-      <h1>중간고사 점수</h1>
-      <ChartForm setData={setData} />
-      <Chart data={data} setData={setData} colorRainbow={colorRainbow} />
+      <h1>체크리스트</h1>
+      <CheckListForm setData={setData} />
+      <div style={checkListStyle}>
+        {data.map((item) => (
+          <CheckBox key={item.id} item={item} setData={setData} />
+        ))}
+      </div>
+      <CheckListProgress data={data} />
     </div>
   );
 }
