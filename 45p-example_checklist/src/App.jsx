@@ -66,12 +66,8 @@ function CheckListForm({ setData }) {
 }
 
 function CheckListProgress({ data }) {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const checkedCount = data.filter((item) => item.checked).length;
-    setProgress(Math.round((checkedCount / data.length) * 100));
-  }, [data]);
+  const checkedCount = data.filter((item) => item.checked).length;
+  const progress = Math.round((checkedCount / data.length) * 100);
 
   const style = {
     boxSizing: 'border-box',
@@ -98,7 +94,7 @@ function CheckListProgress({ data }) {
   return (
     <div style={style}>
       <div style={progressStyle}>
-      <span style={textStyle}>{progress}%</span>
+        <span style={textStyle}>{progress}%</span>
       </div>
     </div>
   );
